@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* รีเซ็ต margin/padding และทำให้เต็มจอ */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+/* Animation slide up + fade out */
+@keyframes slideUpFade {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+/* คลาส tailwind สำหรับใช้ animation */
+.animate-slide-up-fade {
+  animation: slideUpFade 0.5s forwards;
+}
