@@ -1,8 +1,10 @@
 // Profile.jsx
 
 import React from "react";
-import logo from "./img/Logo.png";
-import profile from "./img/profile.jpg";
+import logo from "../img/Logo.png";
+import profile from "../img/profile.jpg";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
 export default function Profile({ onBack, onGoToDashboard, onGoToMenu, onLogout, onGoToNotifications , userData }) {
   // สมมติข้อมูล user (mock data)
@@ -14,6 +16,18 @@ export default function Profile({ onBack, onGoToDashboard, onGoToMenu, onLogout,
     phone: "081-234-5678",
     avatar: profile, // เปลี่ยนได้ตามไฟล์
   };
+
+  function handleLogout() {
+    signOut(auth)
+      .then(() => {
+        console.log("Signed out successfully");
+        setUserData(null);
+        setCurrentPage("login");
+      })
+      .catch((error) => {
+        console.error("Error signing out:", error);
+      });
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -55,7 +69,7 @@ export default function Profile({ onBack, onGoToDashboard, onGoToMenu, onLogout,
 
         {/* Logout Button */}
         <button
-        onClick={onLogout} // ใช้ prop onLogout จาก App.jsx
+        onClick={handleLogout} // ใช้ prop onLogout จาก App.jsx
         className="px-6 py-3 mt-8 bg-red-500 text-white rounded-xl hover:bg-red-600 transition"
         >
         Logout

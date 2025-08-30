@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import logo from "./img/Logo.png"; 
-import googleIcon from "./img/google.png";
+import logo from "../img/Logo.png"; 
+import googleIcon from "../img/google.png";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "./firebase"; // ✅ import auth จาก firebase
+import { auth } from "../firebase"; // ✅ import auth จาก firebase
 
 export default function Welcome({ onLoginClick, onGoogleClick, onRegisterClick, onLoginSuccess }) {
   const [animate, setAnimate] = useState(false);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "./img/Logo.png";
+import logo from "../img/Logo.png";
 
 export default function Loading({ onFinish }) {
   const [show, setShow] = useState(true);

@@ -1,11 +1,11 @@
 // src/Home.jsx
 import React from "react";
-import logo from "./img/Logo.png";
-import profile from "./img/profile.jpg";
-import lunchboxImg from "./img/ข้าวกล่อง.png";
-import snackImg from "./img/ขนม.png";
-import beverageImg from "./img/เครื่องดื่ม.png";
-import postImg from "./img/ข้าวกระเพรา.png";
+import logo from "../img/Logo.png";
+import profile from "../img/profile.jpg";
+import lunchboxImg from "../img/ข้าวกล่อง.png";
+import snackImg from "../img/ขนม.png";
+import beverageImg from "../img/เครื่องดื่ม.png";
+import postImg from "../img/ข้าวกระเพรา.png";
 
 export default function Home({ userData, onLogout, onGoToDashboard, onGoToMenu, onGoToNotifications , onGoToProfile, onBack}) {
   return (

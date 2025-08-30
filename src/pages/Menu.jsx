@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import logo from "./img/Logo.png";
-import profile from "./img/profile.jpg";
-import porkRice from "./img/ข้าวหมูกรอบ.png";
-import chickenRice from "./img/ข้าวมันไก่.png";
-import lays from "./img/เลย์.png";
+import logo from "../img/Logo.png";
+import profile from "../img/profile.jpg";
+import porkRice from "../img/ข้าวหมูกรอบ.png";
+import chickenRice from "../img/ข้าวมันไก่.png";
+import lays from "../img/เลย์.png";
 
-export default function Menu({ onBack, onNavigate , onGoToDashboard, onGoToMenu, onLogout, onGoToNotifications, onGoToProfile})  {
+export default function Menu({ onBack , onGoToDashboard, onGoToMenu, onGoToNotifications, onGoToProfile})  {
   const [selectedCategory, setSelectedCategory] = useState("ALL"); // 👈 เพิ่ม state
 
   const foodItems = [

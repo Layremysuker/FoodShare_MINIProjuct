@@ -1,8 +1,8 @@
 // src/Login.jsx
 import React, { useState, useEffect } from "react";
-import googleIcon from "./img/google.png";
+import googleIcon from "../img/google.png";
 import { ref, get, set } from "firebase/database";
-import { auth, database } from "./firebase";
+import { auth, database } from "../firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function Login({ onSignUpClick, onForgotPasswordClick, onLoginSuccess }) {

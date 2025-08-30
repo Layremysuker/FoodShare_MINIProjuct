@@ -1,7 +1,7 @@
 // src/ForgotPassword.jsx
 import React, { useState, useEffect } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth } from "../firebase";
 
 export default function ForgotPassword({ onBackToLogin }) {
   const [animate, setAnimate] = useState(false);

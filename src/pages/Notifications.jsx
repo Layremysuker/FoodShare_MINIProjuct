@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import logo from "./img/Logo.png";
-import profile from "./img/profile.jpg";
+import logo from "../img/Logo.png";
+import profile from "../img/profile.jpg";
 
 export default function Notifications({ onBack, onGoToDashboard, onGoToMenu, onGoToNotifications , userData , onGoToProfile}) {
   const [activeTab, setActiveTab] = useState("shares");
