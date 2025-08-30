@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "./img/Logo.png";
+import logo from "../img/Logo.png";
 
 export default function Loading({ onFinish }) {
   const [show, setShow] = useState(true);
@@ -21,7 +21,7 @@ export default function Loading({ onFinish }) {
   if (!show) return null;
 
   return (
-    <div className="w-full h-screen bg-[#2e2eff] font-sans text-white flex justify-center">
+    <div className="w-full h-screen bg-[#2e2eff] font-sans text-white flex justify-center ">
       {/* 🔹 เพิ่ม mt-[-20px] ขยับขึ้น 20px */}
       <div
         className={`text-center mt-[250px] transition-all duration-500 ${

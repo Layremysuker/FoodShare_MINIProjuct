@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,4 +26,9 @@ html, body, #root {
 /* คลาส tailwind สำหรับใช้ animation */
 .animate-slide-up-fade {
   animation: slideUpFade 0.5s forwards;
+}
+
+/* ตั้งค่า body ให้ใช้ Kanit เป็นหลัก ถ้าเป็นภาษาอังกฤษใช้ Inter */
+body {
+  font-family: 'Kanit', 'Poppins', sans-serif;
 }

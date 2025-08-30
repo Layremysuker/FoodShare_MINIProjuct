@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import logo from "./img/Logo.png";
-import profile from "./img/profile.jpg";
-import porkRice from "./img/ข้าวหมูกรอบ.png";
-import chickenRice from "./img/ข้าวมันไก่.png";
-import lays from "./img/เลย์.png";
+import logo from "../img/Logo.png";
+import profile from "../img/profile.jpg";
+import porkRice from "../img/ข้าวหมูกรอบ.png";
+import chickenRice from "../img/ข้าวมันไก่.png";
+import lays from "../img/เลย์.png";
 
-export default function Menu({ onBack, onNavigate , onGoToDashboard, onGoToMenu, onLogout, onGoToNotifications, onGoToProfile})  {
+export default function Menu({ onBack , onGoToDashboard, onGoToMenu, onGoToNotifications, onGoToProfile})  {
   const [selectedCategory, setSelectedCategory] = useState("ALL"); // 👈 เพิ่ม state
 
   const foodItems = [
@@ -17,7 +17,7 @@ export default function Menu({ onBack, onNavigate , onGoToDashboard, onGoToMenu,
   const categories = ["ALL", "Lunch Boxes", "Snacks", "Beverages"];
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50 font-sans">
       {/* Header */}
       <header className="bg-[#2e2eff] flex items-center justify-between p-4 rounded-b-3xl">
         <div className="flex items-center space-x-2">

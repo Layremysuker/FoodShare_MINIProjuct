@@ -1,8 +1,8 @@
 // src/Login.jsx
 import React, { useState, useEffect } from "react";
-import googleIcon from "./img/google.png";
+import googleIcon from "../img/google.png";
 import { ref, get, set } from "firebase/database";
-import { auth, database } from "./firebase";
+import { auth, database } from "../firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function Login({ onSignUpClick, onForgotPasswordClick, onLoginSuccess }) {
@@ -100,7 +100,7 @@ export default function Login({ onSignUpClick, onForgotPasswordClick, onLoginSuc
   };
 
   return (
-    <div className="w-full bg-[#2e2eff] flex flex-col justify-start items-center pt-8">
+    <div className="w-full bg-[#2e2eff] font-sans flex flex-col justify-start items-center pt-8">
       {/* Header */}
       <div
         className={`text-center mt-12 transition-all duration-700 ease-out

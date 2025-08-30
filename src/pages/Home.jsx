@@ -1,15 +1,15 @@
 // src/Home.jsx
 import React from "react";
-import logo from "./img/Logo.png";
-import profile from "./img/profile.jpg";
-import lunchboxImg from "./img/ข้าวกล่อง.png";
-import snackImg from "./img/ขนม.png";
-import beverageImg from "./img/เครื่องดื่ม.png";
-import postImg from "./img/ข้าวกระเพรา.png";
+import logo from "../img/Logo.png";
+import profile from "../img/profile.jpg";
+import lunchboxImg from "../img/ข้าวกล่อง.png";
+import snackImg from "../img/ขนม.png";
+import beverageImg from "../img/เครื่องดื่ม.png";
+import postImg from "../img/ข้าวกระเพรา.png";
 
 export default function Home({ userData, onLogout, onGoToDashboard, onGoToMenu, onGoToNotifications , onGoToProfile, onBack}) {
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-white font-sans">
       {/* Header */}
       <header className="p-4 bg-[#2e2eff] flex items-center justify-between shadow-sm rounded-b-3xl transition-all duration-500">
         <div className="flex items-center space-x-2">

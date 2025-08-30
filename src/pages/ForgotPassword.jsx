@@ -1,7 +1,7 @@
 // src/ForgotPassword.jsx
 import React, { useState, useEffect } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth } from "../firebase";
 
 export default function ForgotPassword({ onBackToLogin }) {
   const [animate, setAnimate] = useState(false);
@@ -27,7 +27,7 @@ export default function ForgotPassword({ onBackToLogin }) {
   };
 
   return (
-    <div className="w-full bg-[#2e2eff] flex flex-col justify-start items-center pt-8">
+    <div className="w-full bg-[#2e2eff] font-sans flex flex-col justify-start items-center pt-8">
       {/* Header */}
       <div
         className={`text-center mt-12 transition-all duration-700 ease-out

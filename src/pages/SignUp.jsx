@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, database } from "./firebase";
+import { auth, database } from "../firebase";
 import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { ref, set } from "firebase/database";
 
@@ -73,7 +73,7 @@ export default function SignUp({ onBackToLogin }) {
   }
 
   return (
-    <div className="w-full bg-[#2e2eff] flex flex-col justify-start items-center pt-8">
+    <div className="w-full bg-[#2e2eff] font-sans flex flex-col justify-start items-center pt-8">
       {/* Header */}
       <div className={`text-center mt-12 transition-all duration-700 ease-out ${animate ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
         <h1 className="text-4xl font-bold text-white mb-2">Sign Up</h1>

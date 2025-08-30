@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import logo from "./img/Logo.png"; 
-import googleIcon from "./img/google.png";
+import logo from "../img/Logo.png"; 
+import googleIcon from "../img/google.png";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "./firebase"; // ✅ import auth จาก firebase
+import { auth } from "../firebase"; // ✅ import auth จาก firebase
 
 export default function Welcome({ onLoginClick, onGoogleClick, onRegisterClick, onLoginSuccess }) {
   const [animate, setAnimate] = useState(false);
@@ -28,7 +28,7 @@ export default function Welcome({ onLoginClick, onGoogleClick, onRegisterClick, 
   };
 
   return (
-    <div className="w-full h-screen bg-[#2e2eff] flex flex-col justify-between items-center px-6 py-8">
+    <div className="w-full h-screen bg-[#2e2eff] font-sans flex flex-col justify-between items-center px-6 py-8">
 
       {/* Logo + App Name */}
       <div className={`flex flex-col items-center mt-12 transition-all duration-700 ease-out 
