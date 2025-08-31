@@ -127,11 +127,13 @@ export default function Profile({ onBack, onLogout, userData, onGoToDashboard, o
         <img src={profile} alt="Profile" className="w-10 h-10 rounded-full" />
       </header>
 
+
       {/* Main */}
-      <main className="flex-1 overflow-y-auto p-6 flex flex-col items-center">
+      <main className="flex-1 p-4 md:p-8 flex flex-col items-center bg-gradient-to-b from-white to-blue-50
+        max-w-2xl mx-auto w-full space-y-6 pb-36 transition-all duration-300">
         <button
           onClick={onBack}
-          className="flex items-center self-start text-gray-700 mb-4"
+          className="flex items-center self-start text-gray-700 mb-4 hover:text-[#2e2eff] transition"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2"
                fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,12 +145,12 @@ export default function Profile({ onBack, onLogout, userData, onGoToDashboard, o
 
         {/* Avatar */}
         <img src={profile} alt="User Avatar"
-             className="w-28 h-28 rounded-full object-cover mb-6 shadow-sm border border-gray-200" />
+             className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover mb-4 shadow-lg border-4 border-white" />
 
         {/* User Info */}
-        <div className="w-full max-w-md space-y-3">
+        <div className="w-full max-w-md space-y-4">
           {fields.map(({ key, placeholder }) => (
-            <div key={key} className="flex flex-col bg-white rounded-lg shadow-sm p-3">
+            <div key={key} className="flex flex-col bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition">
               <label className="text-gray-500 text-xs mb-1">
                 {key === "name" ? "UserName" :
                 key === "fullName" ? "Full Name" :
@@ -163,10 +165,10 @@ export default function Profile({ onBack, onLogout, userData, onGoToDashboard, o
                     name={key}
                     value={editData[key]}
                     onChange={handleChange}
-                    className="flex-1 text-gray-800 text-sm focus:outline-none"
+                    className="flex-1 text-gray-800 text-sm focus:outline-none bg-gray-50 rounded px-2 py-1 border border-gray-200"
                   />
                 ) : (
-                  <span className="text-gray-700 text-sm">
+                  <span className="text-gray-700 text-sm break-all">
                     {user[key] || placeholder}
                   </span>
                 )}
@@ -194,28 +196,40 @@ export default function Profile({ onBack, onLogout, userData, onGoToDashboard, o
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="px-5 py-2 mt-5 bg-red-500 text-white rounded-md hover:bg-red-600 transition text-sm font-medium"
+          className="px-5 py-2 mt-5 bg-red-500 text-white rounded-md hover:bg-red-600 transition text-sm font-medium shadow"
         >
           Logout
         </button>
       </main>
 
+      {/* Spacer to prevent content from being hidden behind the fixed bottom nav */}
+      <div className="hidden md:block">
+        <br /><br /><br /><br /><br />
+      </div>
+
+
         {/* Bottom Navigation Container for Profile */}
-        <div className="relative">
+        <div className="fixed left-0 right-0 bottom-0 z-50 max-w-3xl mx-auto w-full">
           {/* Floating Action Button */}
-          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
             <button
-              className="w-16 h-16 bg-[#2e2eff] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300"
+              className="w-16 h-16 bg-[#2e2eff] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 border-4 border-white"
               onClick={onGoToDashboard}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
           </div>
 
           {/* Bottom Navigation */}
-          <nav className="bg-white p-4 shadow-inner flex rounded-t-3xl transition-colors duration-300">
+          <nav className="bg-white/90 backdrop-blur-sm border-t border-gray-200 p-4 shadow-2xl flex rounded-t-3xl transition-colors duration-300 justify-between md:justify-evenly">
             {[
               { name: "Home", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", action: () => onBack("Home") },
               { name: "Menu", icon: "M4 6h16M4 12h16M4 18h16", action: () => onGoToMenu() },
@@ -231,10 +245,10 @@ export default function Profile({ onBack, onLogout, userData, onGoToDashboard, o
                   onClick={item.action}
                   className={`flex-1 flex flex-col items-center transition-colors duration-300 ${item.active ? "text-[#2e2eff]" : "text-gray-400"} hover:text-[#2e2eff]`}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path d={item.icon} strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
                   </svg>
-                  <span className="text-xs mt-1">{item.name}</span>
+                  <span className="text-xs md:text-sm mt-1">{item.name}</span>
                 </button>
               )
             )}
