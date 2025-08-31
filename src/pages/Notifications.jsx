@@ -33,14 +33,26 @@ export default function Notifications({ onBack, onGoToDashboard, onGoToMenu, onG
   };
 
   return (
-    <div className="font-sans flex flex-col h-screen bg-gray-50">
+    <div className="font-sans flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-[#2e2eff] flex items-center justify-between p-4 rounded-b-3xl">
+      <header className="p-4 bg-[#2e2eff] flex items-center justify-between shadow-sm rounded-b-3xl transition-all duration-500
+        md:px-12 md:py-6">
         <div className="flex items-center space-x-2">
-          <img src={logo} alt="Logo" className="w-10 h-10 rounded-full" />
-          <span className="text-white text-xl font-bold">MA THAN</span>
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full"
+          />
+          <span className="text-xl md:text-2xl font-bold text-white tracking-wide">MA THAN</span>
         </div>
-        <img src={profile} alt="Profile" className="w-10 h-10 rounded-full" />
+        <div className="flex items-center space-x-4">
+          <img
+            src={profile}
+            alt="Profile"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full cursor-pointer hover:scale-110 transition-transform duration-300 "
+            onClick={onGoToProfile}
+          />
+        </div>
       </header>
 
       {/* Main Content */}

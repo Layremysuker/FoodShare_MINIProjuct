@@ -117,19 +117,31 @@ export default function Profile({ onBack, onLogout, userData, onGoToDashboard, o
 
   // 🔹 Main Render
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-[#2e2eff] flex items-center justify-between p-4 rounded-b-3xl">
+      <header className="p-4 bg-[#2e2eff] flex items-center justify-between shadow-sm rounded-b-3xl transition-all duration-500
+        md:px-12 md:py-6">
         <div className="flex items-center space-x-2">
-          <img src={logo} alt="Logo" className="w-10 h-10 rounded-full" />
-          <span className="text-white text-xl font-bold">MA THAN</span>
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full"
+          />
+          <span className="text-xl md:text-2xl font-bold text-white tracking-wide">MA THAN</span>
         </div>
-        <img src={profile} alt="Profile" className="w-10 h-10 rounded-full" />
+        <div className="flex items-center space-x-4">
+          <img
+            src={profile}
+            alt="Profile"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full cursor-pointer hover:scale-110 transition-transform duration-300 "
+            onClick={onGoToProfile}
+          />
+        </div>
       </header>
 
 
       {/* Main */}
-      <main className="flex-1 p-4 md:p-8 flex flex-col items-center bg-gradient-to-b from-white to-blue-50
+      <main className="flex-1 p-4 md:p-8 flex flex-col items-center bg-gradient-to-b from-white to-gray-100
         max-w-2xl mx-auto w-full space-y-6 pb-36 transition-all duration-300">
         <button
           onClick={onBack}
