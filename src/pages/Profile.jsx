@@ -5,9 +5,10 @@ import { signOut } from "firebase/auth";
 import { auth, database } from "../firebase"; 
 import { ref, get, set } from "firebase/database";
 
-export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoToNotifications, onGoToProfile , onGoToDashboard}) {
+export default function Profile({ onBack, onLogout, userData, onGoToDashboard, onGoToMenu, onGoToNotifications, onGoToProfile }) {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [editData, setEditData] = useState({
     name: "",
     fullName: "",
@@ -15,6 +16,14 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
     phone: "",
     email: "",
   });
+
+  const fields = [
+    { key: "name", label: "ชื่อในระบบ", placeholder: "No Name" },
+    { key: "fullName", label: "ชื่อเต็ม", placeholder: "No Full Name" },
+    { key: "studentId", label: "รหัสนักศึกษา", placeholder: "00000000" },
+    { key: "phone", label: "เบอร์โทร", placeholder: "000-000-0000" },
+    { key: "email", label: "Email", placeholder: "No Email" },
+  ];
 
   useEffect(() => {
     async function fetchUser() {
@@ -24,7 +33,6 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
         const snapshot = await get(ref(database, `users/${userData.uid}`));
         const data = snapshot.exists() ? snapshot.val() : {};
 
-        // ตั้งค่า default ถ้า field ยังไม่มี
         const defaults = {
           name: data.name || "",
           fullName: data.fullName || "",
@@ -35,8 +43,13 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
 
         setUser(defaults);
         setEditData(defaults);
+
+        // เพิ่ม delay 0.5-1 วินาที เพื่อให้ Spinner แสดงก่อน
+        await new Promise((resolve) => setTimeout(resolve, 700)); // 700ms
       } catch (err) {
         console.error("Error fetching user:", err);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -68,16 +81,41 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
       .catch(console.error);
   };
 
-  if (!user) return <p className="text-gray-500 p-6">Loading user info...</p>;
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center h-screen bg-gray-100">
+        <div className="text-center">
+          <div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-16 h-16 animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-700">Loading user data...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const fields = [
-    { key: "name", label: "ชื่อในระบบ", placeholder: "No Name" },
-    { key: "fullName", label: "ชื่อเต็ม", placeholder: "No Full Name" },
-    { key: "studentId", label: "รหัสนักศึกษา", placeholder: "00000000" },
-    { key: "phone", label: "เบอร์โทร", placeholder: "000-000-0000" },
-    { key: "email", label: "Email", placeholder: "No Email" },
-  ];
+  // 🔹 Loading Skeleton
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen bg-gray-50">
+        <header className="bg-[#2e2eff] flex items-center justify-between p-4 rounded-b-3xl">
+          <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+            <div className="h-4 w-24 bg-gray-300 rounded animate-pulse"></div>
+          </div>
+          <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+        </header>
+        <main className="flex-1 overflow-y-auto p-6 flex flex-col items-center space-y-4 animate-pulse">
+          <div className="w-28 h-28 bg-gray-300 rounded-full"></div>
+          <div className="w-full max-w-md space-y-3">
+            {fields.map((_, idx) => (
+              <div key={idx} className="h-12 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
+  // 🔹 Main Render
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
@@ -111,7 +149,6 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
         <div className="w-full max-w-md space-y-3">
           {fields.map(({ key, placeholder }) => (
             <div key={key} className="flex flex-col bg-white rounded-lg shadow-sm p-3">
-              {/* Label ภาษาอังกฤษ */}
               <label className="text-gray-500 text-xs mb-1">
                 {key === "name" ? "UserName" :
                 key === "fullName" ? "Full Name" :
@@ -119,8 +156,6 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
                 key === "phone" ? "Phone" :
                 "Email"}
               </label>
-
-              {/* Input / Display */}
               <div className="flex items-center justify-between">
                 {editMode ? (
                   <input
@@ -131,9 +166,10 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
                     className="flex-1 text-gray-800 text-sm focus:outline-none"
                   />
                 ) : (
-                  <span className="text-gray-700 text-sm">{user[key] || placeholder}</span>
+                  <span className="text-gray-700 text-sm">
+                    {user[key] || placeholder}
+                  </span>
                 )}
-
                 {!editMode && (
                   <button
                     onClick={() => setEditMode(true)}
@@ -145,7 +181,6 @@ export default function Profile({ onBack, onLogout, userData , onGoToMenu, onGoT
               </div>
             </div>
           ))}
-
           {editMode && (
             <button
               onClick={handleSave}
