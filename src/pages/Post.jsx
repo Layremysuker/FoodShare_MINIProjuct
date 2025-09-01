@@ -5,9 +5,20 @@ import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { getDatabase, ref as dbRef, push, set, serverTimestamp } from "firebase/database";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getAuth } from "firebase/auth";
 import logo from "../img/Logo.png";
 import profile from "../img/profile.jpg";
+import imageCompression from "browser-image-compression";
 
+const db = getDatabase();
+const storage = getStorage();
+const auth = getAuth();
+
+
+// ตั้งค่า Default Marker ใหม่
+delete L.Icon.Default.prototype._getIconUrl; // เคลียร์ path เก่า
 // ตั้งค่า Default Marker
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -27,20 +38,34 @@ function LocationMarker({ position, setPosition }) {
 }
 
 export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMenu, onGoToNotifications , onGoToProfile, onBack, onGoToPost}) {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null);       // preview
+  const [imageFile, setImageFile] = useState(null); // สำหรับอัปโหลด
   const [foodName, setFoodName] = useState("");
   const [description, setDescription] = useState("");
-  const [productionDate, setProductionDate] = useState(""); // วันผลิต
-  const [expiryDate, setExpiryDate] = useState("");         // วันหมดอายุ
+  const [productionDate, setProductionDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
   const [category, setCategory] = useState("");
-  const [position, setPosition] = useState(null); 
+  const [position, setPosition] = useState(null);
 
-  // อัปโหลดรูปภาพ
-  const handleImageUpload = (e) => {
+  const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY; // ใส่ API Key ของคุณใน .env
+
+  // อัปโหลดรูปภาพพร้อมบีบอัด
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
-      // TODO: อัปโหลดไป server ถ้าต้องการเก็บใน DB จริง
+    if (!file) return;
+
+    // บีบอัดภาพก่อน
+    const options = {
+      maxSizeMB: 0.5,           // ไม่เกิน 0.5MB
+      maxWidthOrHeight: 1024,   // ความกว้าง/สูงไม่เกิน 1024px
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(file, options);
+      setImage(URL.createObjectURL(compressedFile)); // preview
+      setImageFile(compressedFile);                  // สำหรับอัปโหลด
+    } catch (error) {
+      console.error("Error compressing image:", error);
     }
   };
 
@@ -58,23 +83,74 @@ export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMen
   };
 
   // Submit Form
-  const handleSubmit = (e) => {
-    e.preventDefault(); // ป้องกัน page reload
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const newPost = {
-      image,
-      foodName,
-      description,
-      productionDate,
-      expiryDate,
-      category,
-      location: position,
-    };
+    if (!foodName || !productionDate || !expiryDate || !position) {
+      alert("กรุณากรอกข้อมูลให้ครบ!");
+      return;
+    }
 
-    console.log("Data to save:", newPost);
-    alert("Post created! (ดูข้อมูลใน console.log)");
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("กรุณาเข้าสู่ระบบก่อนโพสต์");
+        return;
+      }
 
-    // TODO: ส่ง newPost ไปเก็บในฐานข้อมูล
+      let imageUrl = null;
+
+      // อัปโหลดรูปไป ImgBB
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        formData.append("key", IMGBB_API_KEY);
+
+        const res = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          imageUrl = data.data.url; // URL ของรูป
+        } else {
+          console.error("ImgBB upload failed:", data);
+        }
+      }
+
+      console.log("Selected position:", position);
+
+      // สร้าง reference ใหม่ใน Realtime Database
+      const newPostRef = push(dbRef(db, "foodPosts"));
+      await set(newPostRef, {
+        userId: user.uid,
+        image: imageUrl || null,
+        foodName,
+        description,
+        productionDate,
+        expiryDate,
+        category,
+        location: { lat: parseFloat(position[0]), lng: parseFloat(position[1]) },
+        createdAt: serverTimestamp(),
+      });
+
+      alert("Post created in Realtime Database!");
+
+      // รีเซ็ตฟอร์ม
+      setImage(null);
+      setImageFile(null);
+      setFoodName("");
+      setDescription("");
+      setProductionDate("");
+      setExpiryDate("");
+      setCategory("");
+      setPosition(null);
+
+    } catch (error) {
+      console.error("Error posting data:", error);
+      alert("เกิดข้อผิดพลาดในการโพสต์ข้อมูล");
+    }
   };
 
   return (
@@ -182,10 +258,9 @@ export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMen
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2e2eff] focus:outline-none transition duration-200 hover:border-[#2e2eff]"
                 >
                     <option value="">เลือกประเภท</option>
-                    <option value="rice">ข้าว</option>
-                    <option value="fruit">ผลไม้</option>
-                    <option value="drink">เครื่องดื่ม</option>
-                    <option value="snack">ขนมขบเคี้ยว</option>
+                    <option value="Lunch Boxes">Lunch Boxes</option>
+                    <option value="Snacks">Snacks</option>
+                    <option value="Beverages">Beverages</option>
                 </select>
         </div>
 
