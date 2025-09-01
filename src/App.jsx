@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
+import Post from "./pages/Post";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("welcome");
@@ -64,6 +65,7 @@ function App() {
                 onGoToMenu={() => setCurrentPage("menu")}
                 onGoToProfile={() => setCurrentPage("profile")}
                 onGoToNotifications={() => setCurrentPage("notifications")}
+                onGoToPost={() => setCurrentPage("post")}
              />;
     case "menu":
       return <Menu
@@ -71,6 +73,14 @@ function App() {
                 onBack={() => setCurrentPage("home")}
                 onGoToProfile={() => setCurrentPage("profile")}
                 onGoToNotifications={() => setCurrentPage("notifications")}
+             />;
+    case "post":
+      return <Post
+                userData={userData}
+                onBack={() => setCurrentPage("home")}
+                onGoToMenu={() => setCurrentPage("menu")}
+                onGoToNotifications={() => setCurrentPage("notifications")}
+                onGoToProfile={() => setCurrentPage("profile")}
              />;
     case "notifications":
       return <Notifications
