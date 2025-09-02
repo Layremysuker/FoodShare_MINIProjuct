@@ -43,21 +43,26 @@ function App() {
   switch (currentPage) {
     case "welcome":
       return <Welcome onLoginClick={() => setCurrentPage("login")} onRegisterClick={() => setCurrentPage("signup")} />;
+
     case "login":
       return <Login
                 onLoginSuccess={(data) => { setUserData(data); setCurrentPage("home"); }}
                 onSignUpClick={() => setCurrentPage("signup")}
                 onForgotPasswordClick={() => setCurrentPage("forgot")}
              />;
+
     case "signup":
       return <SignUp
                 onBackToLogin={() => setCurrentPage("login")}
                 onSignUp={() => { alert("Sign Up Success! Please log in."); setCurrentPage("login"); }}
              />;
+
     case "forgot":
       return <ForgotPassword onBackToLogin={() => setCurrentPage("login")} />;
+
     case "dashboard":
       return <Dashboard userData={userData} setCurrentPage={setCurrentPage} />;
+
     case "home":
       return <Home
                 userData={userData}
@@ -67,13 +72,16 @@ function App() {
                 onGoToNotifications={() => setCurrentPage("notifications")}
                 onGoToPost={() => setCurrentPage("post")}
              />;
+
     case "menu":
       return <Menu
                 userData={userData}
                 onBack={() => setCurrentPage("home")}
                 onGoToProfile={() => setCurrentPage("profile")}
                 onGoToNotifications={() => setCurrentPage("notifications")}
+                onGoToPost={() => setCurrentPage("post")}
              />;
+
     case "post":
       return <Post
                 userData={userData}
@@ -81,22 +89,28 @@ function App() {
                 onGoToMenu={() => setCurrentPage("menu")}
                 onGoToNotifications={() => setCurrentPage("notifications")}
                 onGoToProfile={() => setCurrentPage("profile")}
+                
              />;
+
     case "notifications":
       return <Notifications
                 userData={userData}
                 onBack={() => setCurrentPage("home")}
                 onGoToMenu={() => setCurrentPage("menu")}
                 onGoToProfile={() => setCurrentPage("profile")}
+                onGoToPost={() => setCurrentPage("post")}
              />;
+
     case "profile":
       return <Profile
                 userData={userData}
                 onBack={() => setCurrentPage("home")}
                 onGoToMenu={() => setCurrentPage("menu")}
                 onGoToNotifications={() => setCurrentPage("notifications")}
+                onGoToPost={() => setCurrentPage("post")}
                 onLogout={handleLogout}  // <- logout เฉพาะหน้า profile
              />;
+
     default:
       return <div>Loading...</div>;
   }

@@ -5,7 +5,7 @@ import porkRice from "../img/ข้าวหมูกรอบ.png";
 import chickenRice from "../img/ข้าวมันไก่.png";
 import lays from "../img/เลย์.png";
 
-export default function Menu({ onBack , onGoToDashboard, onGoToMenu, onGoToNotifications, onGoToProfile})  {
+export default function Menu({ onBack , onGoToDashboard, onGoToMenu, onGoToNotifications, onGoToProfile, onGoToPost})  {
   const [selectedCategory, setSelectedCategory] = useState("ALL"); // 👈 เพิ่ม state
 
   const foodItems = [
@@ -111,7 +111,7 @@ export default function Menu({ onBack , onGoToDashboard, onGoToMenu, onGoToNotif
         <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
           <button
             className="w-16 h-16 bg-[#2e2eff] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 border-4 border-white"
-            onClick={onGoToDashboard}
+            onClick={onGoToPost}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import logo from "../img/Logo.png";
 import profile from "../img/profile.jpg";
 
-export default function Notifications({ onBack, onGoToDashboard, onGoToMenu, onGoToNotifications , userData , onGoToProfile}) {
+export default function Notifications({ onBack, onGoToDashboard, onGoToMenu, onGoToNotifications , userData , onGoToProfile, onGoToPost}) {
   const [activeTab, setActiveTab] = useState("shares");
 
   const notifications = {
@@ -115,7 +115,7 @@ export default function Notifications({ onBack, onGoToDashboard, onGoToMenu, onG
         <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
           <button
             className="w-16 h-16 bg-[#2e2eff] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 border-4 border-white"
-            onClick={onGoToDashboard}
+            onClick={onGoToPost}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

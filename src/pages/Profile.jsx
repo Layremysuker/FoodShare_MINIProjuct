@@ -5,7 +5,7 @@ import { signOut } from "firebase/auth";
 import { auth, database } from "../firebase"; 
 import { ref, get, set } from "firebase/database";
 
-export default function Profile({ onBack, onLogout, userData, onGoToDashboard, onGoToMenu, onGoToNotifications, onGoToProfile }) {
+export default function Profile({ onBack, onLogout, userData, onGoToDashboard, onGoToMenu, onGoToNotifications, onGoToProfile, onGoToPost }) {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -226,7 +226,7 @@ export default function Profile({ onBack, onLogout, userData, onGoToDashboard, o
           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
             <button
               className="w-16 h-16 bg-[#2e2eff] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 border-4 border-white"
-              onClick={onGoToDashboard}
+              onClick={onGoToPost}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
