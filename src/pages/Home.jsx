@@ -1,14 +1,39 @@
 // src/Home.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { getDatabase, ref as dbRef, onValue } from "firebase/database";
 import logo from "../img/Logo.png";
 import profile from "../img/profile.jpg";
 import lunchboxImg from "../img/ข้าวกล่อง.png";
 import snackImg from "../img/ขนม.png";
 import beverageImg from "../img/เครื่องดื่ม.png";
-import postImg from "../img/ข้าวกระเพรา.png";
 
 // ...existing code...
-export default function Home({ userData, onLogout, onGoToDashboard, onGoToMenu, onGoToNotifications , onGoToProfile, onBack, onGoToPost}) {
+export default function Home({ userData, onLogout, onGoToDashboard, onSelectCategory, onSearch, onGoToMenu, onGoToNotifications , onGoToProfile, onBack, onGoToPost ,searchQuery, setSearchQuery,}) {
+
+const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const db = getDatabase();
+    const postsRef = dbRef(db, "foodPosts");
+
+    const unsubscribe = onValue(postsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const loadedPosts = Object.entries(data).map(([id, value]) => ({
+          id,
+          ...value,
+        }));
+        // sort ล่าสุดอยู่บน
+        loadedPosts.sort((a, b) => b.createdAt - a.createdAt);
+        setPosts(loadedPosts);
+      } else {
+        setPosts([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans">
       {/* Header */}
@@ -43,25 +68,28 @@ export default function Home({ userData, onLogout, onGoToDashboard, onGoToMenu, 
         </div>
 
         {/* Search Bar */}
-        <div className="relative my-4 w-full  mx-auto">
+        <div className="relative my-4 w-full mx-auto">
           <input
             type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#2e2eff] transition-shadow duration-300 hover:shadow-md text-base md:text-lg"
+            placeholder="Search menu..."
+            value={searchQuery}                  // ผูกกับ state ของ App
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && onSearch) {
+                onSearch(searchQuery);          // ส่งค่าไป Menu
+              }
+            }}
+            className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-lg placeholder-gray-500 
+                      focus:outline-none focus:ring-2 focus:ring-[#2e2eff] transition-shadow 
+                      duration-300 hover:shadow-md text-base md:text-lg"
           />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+          <svg xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              onClick={onGoToMenu} // ✅ กดไอคอนก็ไป Menu
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
 
@@ -69,9 +97,12 @@ export default function Home({ userData, onLogout, onGoToDashboard, onGoToMenu, 
         <section className="my-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg md:text-2xl font-bold text-gray-800">All Categories</h2>
-            <a href="#" className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition">
-              See All &gt;
-            </a>
+              <button
+                onClick={onGoToMenu} // ฟังก์ชันเปลี่ยนหน้าไป Menu
+                className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition"
+              >
+                See All &gt;
+              </button>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-3 gap-6">
             {[
@@ -82,6 +113,7 @@ export default function Home({ userData, onLogout, onGoToDashboard, onGoToMenu, 
               <div
                 key={i}
                 className="flex flex-col items-center bg-white w-full cursor-pointer transform transition duration-300 shadow-md hover:scale-105 hover:shadow-xl rounded-xl p-4"
+                onClick={() => onSelectCategory(cat.name)}  // ✅ กดแล้วเรียก callback
               >
                 <img
                   src={cat.img}
@@ -98,35 +130,39 @@ export default function Home({ userData, onLogout, onGoToDashboard, onGoToMenu, 
         <section className="my-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg md:text-2xl font-bold text-gray-800">
-              What's Being Shared Nearby?
+              Latest Food Shares
             </h2>
-            <a href="#" className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition">
-              See All &gt;
-            </a>
+              <button
+                onClick={onGoToMenu} // ฟังก์ชันเปลี่ยนหน้าไป Menu
+                className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition"
+              >
+                See All &gt;
+              </button>
           </div>
 
-          {/* Example Posts */}
+          {/* Posts from Realtime Database */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2].map((_, idx) => (
-              <div key={idx} className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transform transition duration-300 hover:-translate-y-1">
-                <img
-                  src={postImg}
-                  alt="Post"
-                  className="w-full h-48 md:h-56 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg md:text-xl font-bold text-gray-800">
-                    ข้าวหมูทอด - ข้าวกล่องจากกิจกรรม
-                  </h3>
-                  <p className="text-gray-500 text-sm mt-1 flex items-center">
-                    📍 หอพักชาย - หอตาหลา - ใต้หอพัก
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1 flex items-center">
-                    📅 วันผลิต - 22/2/2222 หมดอายุ - 24/2/2222
-                  </p>
+            {posts.length === 0 ? (
+              <p className="text-gray-500">ยังไม่มีโพสต์</p>
+            ) : (
+              posts.map((post) => (
+                <div
+                  key={post.id}
+                  className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transform transition duration-300 hover:-translate-y-1"
+                >
+                  {post.image && (
+                    <img src={post.image} alt={post.foodName} className="w-full h-48 md:h-56 object-cover" />
+                  )}
+                  <div className="p-4">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-800">{post.foodName}</h3>
+                    <p className="text-gray-500 text-sm mt-1 flex items-center">📍 {post.description || "No location info"}</p>
+                    <p className="text-gray-500 text-sm mt-1 flex items-center">
+                      📅 วันผลิต - {post.productionDate} หมดอายุ - {post.expiryDate}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </section>
       </main>
