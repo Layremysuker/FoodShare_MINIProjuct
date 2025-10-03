@@ -1,4 +1,3 @@
-// src/Home.jsx
 import React, { useState, useEffect } from "react";
 import { getDatabase, ref as dbRef, onValue } from "firebase/database";
 import logo from "../img/Logo.png";
@@ -7,10 +6,21 @@ import lunchboxImg from "../img/ข้าวกล่อง.png";
 import snackImg from "../img/ขนม.png";
 import beverageImg from "../img/เครื่องดื่ม.png";
 
-// ...existing code...
-export default function Home({ userData, onLogout, onGoToDashboard, onSelectCategory, onSearch, onGoToMenu, onGoToNotifications , onGoToProfile, onBack, onGoToPost ,searchQuery, setSearchQuery,}) {
-
-const [posts, setPosts] = useState([]);
+export default function Home({
+  userData,
+  onLogout,
+  onGoToDashboard,
+  onSelectCategory,
+  onSearch,
+  onGoToMenu,
+  onGoToNotifications,
+  onGoToProfile,
+  onBack,
+  onGoToPost,
+  searchQuery,
+  setSearchQuery,
+}) {
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const db = getDatabase();
@@ -19,12 +29,24 @@ const [posts, setPosts] = useState([]);
     const unsubscribe = onValue(postsRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
-        const loadedPosts = Object.entries(data).map(([id, value]) => ({
-          id,
-          ...value,
-        }));
-        // sort ล่าสุดอยู่บน
-        loadedPosts.sort((a, b) => b.createdAt - a.createdAt);
+        const loadedPosts = Object.entries(data)
+          .map(([id, value]) => ({
+            id,
+            title: value.title || "Untitled",   // ใช้ชื่อจริงจาก DB
+            img: value.img || "/default-food.png", // ใช้ URL จริง
+            description: value.description || "",
+            productionDate: value.productionDate || "",
+            expiryDate: value.expiryDate || "",
+            location: value.location || null,
+            category: value.category || "Uncategorized",
+            createdAt: value.createdAt || null,
+            status: value.status || "available", // ✅ เพิ่ม status
+          }))
+          // กรองเฉพาะโพสต์ที่ยังไม่ถูก claim
+          .filter((post) => post.status !== "claimed")
+          // sort ล่าสุดอยู่บน
+          .sort((a, b) => b.createdAt - a.createdAt);
+
         setPosts(loadedPosts);
       } else {
         setPosts([]);
@@ -35,23 +57,18 @@ const [posts, setPosts] = useState([]);
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white font-sans">
+    <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
       {/* Header */}
-      <header className="p-4 bg-[#2e2eff] flex items-center justify-between shadow-sm rounded-b-3xl transition-all duration-500
-        md:px-12 md:py-6">
+      <header className="p-4 bg-[#2e2eff] flex items-center justify-between shadow-sm rounded-b-3xl transition-all duration-500 md:px-12 md:py-6">
         <div className="flex items-center space-x-2">
-          <img
-            src={logo}
-            alt="Logo"
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full"
-          />
+          <img src={logo} alt="Logo" className="w-10 h-10 md:w-14 md:h-14 rounded-full" />
           <span className="text-xl md:text-2xl font-bold text-white tracking-wide">MA THAN</span>
         </div>
         <div className="flex items-center space-x-4">
           <img
             src={profile}
             alt="Profile"
-            className="w-10 h-10 md:w-14 md:h-14 rounded-full cursor-pointer hover:scale-110 transition-transform duration-300 "
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full cursor-pointer hover:scale-110 transition-transform duration-300"
             onClick={onGoToProfile}
           />
         </div>
@@ -62,8 +79,7 @@ const [posts, setPosts] = useState([]);
         {/* Greeting */}
         <div className="my-4 animate-fadeIn">
           <h1 className="text-[16px] md:text-2xl font-bold text-gray-800">
-            HEY! HELLO,{" "}
-            <span className="text-[#2e2eff]">Good Afternoon!</span>
+            HEY! HELLO, <span className="text-[#2e2eff]">Good Afternoon!</span>
           </h1>
         </div>
 
@@ -72,24 +88,29 @@ const [posts, setPosts] = useState([]);
           <input
             type="text"
             placeholder="Search menu..."
-            value={searchQuery}                  // ผูกกับ state ของ App
+            value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && onSearch) {
-                onSearch(searchQuery);          // ส่งค่าไป Menu
-              }
+              if (e.key === "Enter" && onSearch) onSearch(searchQuery);
             }}
             className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-lg placeholder-gray-500 
                       focus:outline-none focus:ring-2 focus:ring-[#2e2eff] transition-shadow 
                       duration-300 hover:shadow-md text-base md:text-lg"
           />
-          <svg xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-              fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              onClick={onGoToMenu} // ✅ กดไอคอนก็ไป Menu
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            onClick={onGoToMenu}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
 
@@ -97,12 +118,12 @@ const [posts, setPosts] = useState([]);
         <section className="my-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg md:text-2xl font-bold text-gray-800">All Categories</h2>
-              <button
-                onClick={onGoToMenu} // ฟังก์ชันเปลี่ยนหน้าไป Menu
-                className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition"
-              >
-                See All &gt;
-              </button>
+            <button
+              onClick={onGoToMenu}
+              className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition"
+            >
+              See All &gt;
+            </button>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-3 gap-6">
             {[
@@ -113,7 +134,7 @@ const [posts, setPosts] = useState([]);
               <div
                 key={i}
                 className="flex flex-col items-center bg-white w-full cursor-pointer transform transition duration-300 shadow-md hover:scale-105 hover:shadow-xl rounded-xl p-4"
-                onClick={() => onSelectCategory(cat.name)}  // ✅ กดแล้วเรียก callback
+                onClick={() => onSelectCategory(cat.name)}
               >
                 <img
                   src={cat.img}
@@ -129,15 +150,13 @@ const [posts, setPosts] = useState([]);
         {/* Shared Nearby */}
         <section className="my-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg md:text-2xl font-bold text-gray-800">
-              Latest Food Shares
-            </h2>
-              <button
-                onClick={onGoToMenu} // ฟังก์ชันเปลี่ยนหน้าไป Menu
-                className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition"
-              >
-                See All &gt;
-              </button>
+            <h2 className="text-lg md:text-2xl font-bold text-gray-800">Latest Food Shares</h2>
+            <button
+              onClick={onGoToMenu}
+              className="text-[#2e2eff] text-sm md:text-base font-semibold hover:underline transition"
+            >
+              See All &gt;
+            </button>
           </div>
 
           {/* Posts from Realtime Database */}
@@ -148,16 +167,51 @@ const [posts, setPosts] = useState([]);
               posts.map((post) => (
                 <div
                   key={post.id}
-                  className="bg-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-xl transform transition duration-300 hover:-translate-y-1"
+                  className="bg-gray-50 rounded-xl overflow-hidden shadow-md hover:shadow-xl transform transition duration-300 hover:-translate-y-1"
                 >
-                  {post.image && (
-                    <img src={post.image} alt={post.foodName} className="w-full h-48 md:h-56 object-cover" />
+                  {post.img && (
+                    <img
+                      src={post.img}
+                      alt={post.title}
+                      className="w-full h-48 md:h-56 object-cover"
+                    />
                   )}
                   <div className="p-4">
-                    <h3 className="text-lg md:text-xl font-bold text-gray-800">{post.foodName}</h3>
-                    <p className="text-gray-500 text-sm mt-1 flex items-center">📍 {post.description || "No location info"}</p>
-                    <p className="text-gray-500 text-sm mt-1 flex items-center">
-                      📅 วันผลิต - {post.productionDate} หมดอายุ - {post.expiryDate}
+                    {/* ชื่ออาหาร */}
+                    <h3 className="text-lg md:text-xl pl-1 font-bold text-gray-800">{post.title}</h3>
+
+                    {/* Category badge */}
+                    {post.category && (
+                      <div className="mt-2">
+                        <span
+                          className={`inline-block px-2 py-1 text-xs font-semibold rounded-full
+                            ${post.category === "Lunch Boxes" ? "bg-yellow-100 text-yellow-800" :
+                              post.category === "Snacks" ? "bg-pink-100 text-pink-800" :
+                              post.category === "Beverages" ? "bg-blue-100 text-blue-800" :
+                              "bg-gray-100 text-gray-800"}`}
+                        >
+                          {post.category}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* ตำแหน่ง */}
+                    {post.location && (
+                      <p className="text-gray-500 text-sm  mt-1 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className=" text-blue-400 w-4 h-4 mr-1.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                        </svg>
+                        {post.location.lat.toFixed(5)}, {post.location.lng.toFixed(5)}
+                      </p>
+                    )}
+
+                    {/* วันผลิต & วันหมดอายุ */}
+                    <p className="text-gray-500 text-sm mt-1  flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      วันผลิต - {post.productionDate} หมดอายุ - {post.expiryDate}
                     </p>
                   </div>
                 </div>

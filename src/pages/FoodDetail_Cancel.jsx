@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getDatabase, ref, push, set } from "firebase/database";
+import { getDatabase, ref, get, remove, update } from "firebase/database";
 import logo from "../img/Logo.png";
 import profile from "../img/profile.jpg";
 
-export default function FoodDetail({ foodItem, onBack, onGoToProfile, userData, setCurrentPage }) {
+export default function FoodDetail_Cancel({ ClaimItem, onBack, onGoToProfile, userData, setCurrentPage }) {
   const [showClaimPopup, setShowClaimPopup] = useState(false);
 
-  if (!foodItem) return <p className="text-center mt-8 text-gray-500">Loading...</p>;
+  if (!ClaimItem) return <p className="text-center mt-8 text-gray-500">Loading...</p>;
 
-  const { title, img, description, productionDate, expiryDate, location, category, id } = foodItem;
+  // ดึงข้อมูลสำคัญ
+  const { title, img, description, productionDate, expiryDate, location, category, foodId, id } = ClaimItem;
+  const foodKey = foodId || id;
 
   // Preload image
   useEffect(() => {
@@ -18,41 +20,47 @@ export default function FoodDetail({ foodItem, onBack, onGoToProfile, userData, 
     }
   }, [img]);
 
-  const handleClaim = async () => {
+    const handleCancelClaim = async () => {
     if (!userData) {
-      alert("กรุณาเข้าสู่ระบบก่อน Claim");
-      return;
+        alert("กรุณาเข้าสู่ระบบก่อนยกเลิก");
+        return;
+    }
+
+    if (!ClaimItem.claimId) {
+        alert("ไม่พบ Claim ID ของรายการนี้");
+        return;
     }
 
     try {
-      const db = getDatabase();
+        const db = getDatabase();
 
-      // 1️⃣ เพิ่ม Claim ใน claims
-      const claimRef = push(ref(db, "claims"));
-      await set(claimRef, {
-        foodId: id,
-        userId: userData.uid,
-        claimedAt: new Date().toISOString(),
-        foodData: { title, img, description, productionDate, expiryDate, category, location },
-      });
+        // ลบ Claim โดยตรงจาก claimId
+        await remove(ref(db, `claims/${ClaimItem.claimId}`));
 
-      // 2️⃣ อัปเดตสถานะโพสใน foodPosts เป็น "claimed"
-      const postRef = ref(db, `foodPosts/${id}`);
-      await set(postRef, { ...foodItem, status: "claimed" });
+        // อัปเดต foodPosts ให้เป็น available
+        const foodKey = ClaimItem.foodId || ClaimItem.id;
+        if (foodKey) {
+        await update(ref(db, `foodPosts/${foodKey}`), {
+            ...ClaimItem,
+            status: "available",
+        });
+        }
 
-      // ✅ แสดง popup
-      setShowClaimPopup(true);
+        // ✅ แทน alert ด้วยการแสดง popup
+        setShowClaimPopup(true);
 
-      // หลัง 2 วินาที hide popup และกลับหน้า Home
-      setTimeout(() => {
+        // ปิด popup และกลับหน้า home หลัง 2 วินาที
+        setTimeout(() => {
         setShowClaimPopup(false);
         setCurrentPage("home");
-      }, 2000);
+        }, 2000);
+
     } catch (err) {
-      console.error("Error claiming food:", err);
-      alert("เกิดข้อผิดพลาดในการ Claim");
+        console.error("Error cancelling claim:", err);
+        alert("เกิดข้อผิดพลาดในการยกเลิก Claim");
     }
-  };
+    };
+
 
   return (
     <div className="relative flex flex-col min-h-screen bg-white font-sans">
@@ -151,54 +159,54 @@ export default function FoodDetail({ foodItem, onBack, onGoToProfile, userData, 
             <p className="text-gray-400 text-sm mt-2">ไม่พบพิกัดสำหรับรายการนี้</p>
           )}
 
-          {/* ปุ่ม Claim */}
-          <div className="mt-6 flex justify-center">
+          {/* ปุ่ม Cancel Claim */}
+            <div className="mt-6 flex justify-center">
             <button
-              onClick={handleClaim}
-              className="px-6 py-3 bg-green-500 text-white font-semibold rounded-xl shadow-md hover:bg-green-600 transition"
+                onClick={handleCancelClaim}
+                className="px-6 py-3 bg-red-500 text-white font-semibold rounded-xl shadow-md hover:bg-red-600 transition"
             >
-              Claim This Food
+                Cancel Claim
             </button>
-          </div>
+            </div>
         </div>
       </main>
 
-      {/* ✅ Popup หลังโพสต์ */}
-      {showClaimPopup && (
-        <div className="fixed inset-0 z-[9999] bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white rounded-2xl p-8 w-64 h-64 flex flex-col items-center justify-center transform scale-75 animate-popup shadow-2xl relative">
-            
-            {/* อนิเมชันติ๊กถูก */}
-            <div className="checkmark mb-4">
-              <svg className="w-20 h-20 text-green-500" viewBox="0 0 52 52">
-                <circle
-                  className="checkmark__circle"
-                  cx="26"
-                  cy="26"
-                  r="24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-                <path
-                  className="checkmark__check"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  d="M14 27l7 7 16-16"
-                />
-              </svg>
-            </div>
+            {/* ✅ Popup หลังโพสต์ */}
+                {showClaimPopup && (
+                <div className="fixed inset-0 z-[9999] bg-black bg-opacity-40 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl p-8 w-64 h-64 flex flex-col items-center justify-center transform scale-75 animate-popup shadow-2xl relative">
+                    
+                    {/* อนิเมชันติ๊กถูก */}
+                    <div className="checkmark mb-4">
+                        <svg className="w-20 h-20 text-green-500" viewBox="0 0 52 52">
+                        <circle
+                            className="checkmark__circle"
+                            cx="26"
+                            cy="26"
+                            r="24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        />
+                        <path
+                            className="checkmark__check"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            d="M14 27l7 7 16-16"
+                        />
+                        </svg>
+                    </div>
 
-            <h2 className="text-2xl font-extrabold text-gray-900 text-center">
-              Claim อาหารสำเร็จ!
-            </h2>
-            <p className="text-sm text-gray-500 mt-2 text-center">
-              ระบบได้บันทึกการ Claim ของคุณเรียบร้อย
-            </p>
-          </div>
-        </div>
-      )}
+                    <h2 className="text-2xl font-extrabold text-gray-900 text-center">
+                        ยกเลิกรายการสำเร็จ!
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-2 text-center">
+                        ระบบได้บันทึกการยกเลิก Claim ของคุณเรียบร้อย
+                    </p>
+                    </div>
+                </div>
+        )}
 
 
         <style>{`
@@ -230,6 +238,7 @@ export default function FoodDetail({ foodItem, onBack, onGoToProfile, userData, 
             }
           }
         `}</style>
+
     </div>
   );
 }

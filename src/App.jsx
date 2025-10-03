@@ -13,12 +13,16 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Post from "./pages/Post";
 import FoodDetail from "./pages/FoodDetail";
+import EditPost from "./pages/EditPost";
+import FoodDetail_Cancel from "./pages/FoodDetail_Cancel";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("welcome");
   const [userData, setUserData] = useState(null);
   const [loadingFinished, setLoadingFinished] = useState(false);
   const [selectedFoodItem, setSelectedFoodItem] = useState(null); // ✅ เพิ่ม
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedClaim, setselectedClaim] = useState(null);
 
   // 👇 state สำหรับ Search ระหว่าง Home -> Menu
   const [searchQuery, setSearchQuery] = useState("");
@@ -143,6 +147,7 @@ function App() {
           onGoToMenu={() => setCurrentPage("menu")}
           onGoToNotifications={() => setCurrentPage("notifications")}
           onGoToProfile={() => setCurrentPage("profile")}
+          setCurrentPage={setCurrentPage} // ✅ ส่ง setCurrentPage ไปด้วย
         />
       );
 
@@ -154,6 +159,16 @@ function App() {
           onGoToMenu={() => setCurrentPage("menu")}
           onGoToProfile={() => setCurrentPage("profile")}
           onGoToPost={() => setCurrentPage("post")}
+          onGoToEditPost={() => setCurrentPage("editPost")}
+          onSelectedPost={(item) => {
+                console.log("เลือกโพสต์:", item);
+              setSelectedPost(item);   // เก็บรายการที่เลือก
+              setCurrentPage("editPost");    // เปลี่ยนหน้าไป FoodDetail
+            }}
+          onSelectClaim={(claimitem) => {
+              setselectedClaim(claimitem);   // เก็บรายการที่เลือก
+              setCurrentPage("foodDetail_cancel");    // เปลี่ยนหน้าไป FoodDetail
+            }}
         />
       );
 
@@ -172,10 +187,41 @@ function App() {
     case "foodDetail":
       return (
         <FoodDetail
+        
+          userData={userData}
+          // ✅ ส่งข้อมูล foodItem ที่เลือกไปด้วย
           foodItem={selectedFoodItem}   // ต้องไม่เป็น null
           onBack={() => setCurrentPage("menu")}
+          setCurrentPage={setCurrentPage} // ✅ ส่ง setCurrentPage ไปด้วย
         />
       );
+
+    case "editPost":
+      return (
+        <EditPost
+          userData={userData}
+          post={selectedPost} // ส่งโพสต์ที่เลือกไป
+          onBack={() => setCurrentPage("notifications")}
+          onGoToMenu={() => setCurrentPage("menu")}
+          onGoToProfile={() => setCurrentPage("profile")}
+          onGoToNotifications={() => setCurrentPage("notifications")}
+          onGoToPost={() => setCurrentPage("post")}
+        />
+      );
+
+    case "foodDetail_cancel":
+      console.log("userData.uid:", userData.uid);
+      console.log("👉 Claim ที่เลือก:", selectedClaim);
+      return (
+        <FoodDetail_Cancel  
+          userData={userData}
+          // ✅ ส่งข้อมูล foodItem ที่เลือกไปด้วย
+          ClaimItem={selectedClaim}   // ต้องไม่เป็น null
+          onBack={() => setCurrentPage("notifications")}
+          setCurrentPage={setCurrentPage} // ✅ ส่ง setCurrentPage ไปด้วย
+        />
+      );
+
 
     default:
       return <div>Loading...</div>;

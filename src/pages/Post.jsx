@@ -6,14 +6,12 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { getDatabase, ref as dbRef, push, set, serverTimestamp } from "firebase/database";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import logo from "../img/Logo.png";
 import profile from "../img/profile.jpg";
 import imageCompression from "browser-image-compression";
 
 const db = getDatabase();
-const storage = getStorage();
 const auth = getAuth();
 
 
@@ -37,7 +35,7 @@ function LocationMarker({ position, setPosition }) {
   return position ? <Marker position={position} /> : null;
 }
 
-export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMenu, onGoToNotifications , onGoToProfile, onBack, onGoToPost}) {
+export default function AddPost({ userData, onLogout , onGoToMenu, onGoToNotifications , onGoToProfile, onBack, onGoToPost}) {
   const [image, setImage] = useState(null);       // preview
   const [imageFile, setImageFile] = useState(null); // สำหรับอัปโหลด
   const [foodName, setFoodName] = useState("");
@@ -48,6 +46,8 @@ export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMen
   const [position, setPosition] = useState(null);
 
   const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY; // ใส่ API Key ของคุณใน .env
+  const [showSuccess, setShowSuccess] = useState(false); // ✅ state popup
+  const [latestPost, setLatestPost] = useState({});  // ดึงโพสต์ล่าสุดมาแสดงใน popup
 
   // อัปโหลดรูปภาพพร้อมบีบอัด
   const handleImageUpload = async (e) => {
@@ -126,16 +126,19 @@ export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMen
       await set(newPostRef, {
         userId: user.uid,
         image: imageUrl || null,
-        foodName,
+        title: foodName,           // ใช้ title ให้ตรงกับ Home/Menu.jsx
+        img: imageUrl || null,     // ใช้ img ให้ตรงกับ Home/Menu.jsx
         description,
         productionDate,
         expiryDate,
         category,
         location: { lat: parseFloat(position[0]), lng: parseFloat(position[1]) },
         createdAt: serverTimestamp(),
+        status: "available",       // ✅ เพิ่ม status ว่าโพสต์นี้ยังไม่ถูก claim
       });
+      setShowSuccess(true); // แสดง popup
 
-      alert("Post created in Realtime Database!");
+      // หลัง 2 วินาที hide popup และกลับหน้า Home
 
       // รีเซ็ตฟอร์ม
       setImage(null);
@@ -146,6 +149,11 @@ export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMen
       setExpiryDate("");
       setCategory("");
       setPosition(null);
+
+        setTimeout(() => {
+        setShowSuccess(false);
+        onBack();
+      }, 2000);
 
     } catch (error) {
       console.error("Error posting data:", error);
@@ -296,6 +304,74 @@ export default function AddPost({ userData, onLogout, onGoToDashboard, onGoToMen
         >
         POST
         </button>
+
+            {/* ✅ Popup หลังโพสต์ */}
+                {showSuccess && (
+                <div className="fixed inset-0 z-[9999] bg-black bg-opacity-40 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl p-8 w-64 h-64 flex flex-col items-center justify-center transform scale-75 animate-popup shadow-2xl relative">
+                    
+                    {/* อนิเมชันติ๊กถูก */}
+                    <div className="checkmark mb-4">
+                        <svg className="w-20 h-20 text-green-500" viewBox="0 0 52 52">
+                        <circle
+                            className="checkmark__circle"
+                            cx="26"
+                            cy="26"
+                            r="24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        />
+                        <path
+                            className="checkmark__check"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            d="M14 27l7 7 16-16"
+                        />
+                        </svg>
+                    </div>
+
+                    <h2 className="text-2xl font-extrabold text-gray-900 text-center">
+                        โพสต์สำเร็จ!
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-2 text-center">
+                        ระบบได้บันทึกการ Post ของคุณเรียบร้อย
+                    </p>
+                    </div>
+                </div>
+        )}
+
+
+        <style>{`
+          @keyframes popup {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+          }
+          .animate-popup { animation: popup 0.35s ease-out forwards; }
+
+          /* วงกลมติ๊กถูก */
+          .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-linecap: round;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+          }
+
+          .checkmark__check {
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            stroke-linecap: round;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+          }
+
+          @keyframes stroke {
+            to {
+              stroke-dashoffset: 0;
+            }
+          }
+        `}</style>
 
 
                 {/* Spacer to prevent content from being hidden behind the fixed bottom nav */}

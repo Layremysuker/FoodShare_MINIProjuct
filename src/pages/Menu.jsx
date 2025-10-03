@@ -36,14 +36,15 @@ export default function Menu({
         const data = snapshot.val();
         const loadedPosts = Object.entries(data).map(([id, value]) => ({
           id,
-          title: value.foodName || "Untitled",
-          img: value.image || "/default-food.png",
+          title: value.title || "Untitled",        // ใช้ชื่อจริงจาก DB
+          img: value.img || "/default-food.png",   // ใช้ URL จริง
           description: value.description || "",
           productionDate: value.productionDate || "",
           expiryDate: value.expiryDate || "",
           category: value.category || "Uncategorized",
           location: value.location || null,
           createdAt: value.createdAt || null,
+          status: value.status || "available",      // ✅ เพิ่ม status
         }));
         setFoodItems(loadedPosts);
       } else {
@@ -54,7 +55,7 @@ export default function Menu({
     return () => unsubscribe();
   }, []);
 
-  // Filter ตาม category + searchQuery
+    // Filter ตาม category + searchQuery + status
     const filteredFood = foodItems.filter((item) => {
       const matchCategory =
         selectedCategory === "ALL" || item.category?.toLowerCase() === selectedCategory.toLowerCase();
@@ -62,13 +63,14 @@ export default function Menu({
       const matchSearch =
         !searchQuery || item.title?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchCategory && matchSearch;
+      const isAvailable = item.status !== "claimed"; // เอาเฉพาะโพสต์ที่ยังไม่ถูก claim
+
+      return matchCategory && matchSearch && isAvailable;
     });
 
 
-
   return (
-    <div className="flex flex-col min-h-screen bg-white font-sans">
+    <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
       {/* Header */}
       <header className="p-4 bg-[#2e2eff] flex items-center justify-between shadow-sm rounded-b-3xl md:px-12 md:py-6">
         <div className="flex items-center space-x-2">
