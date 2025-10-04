@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getDatabase, ref, push, set } from "firebase/database";
+import { getDatabase, ref, push, set, update } from "firebase/database";
 import logo from "../img/Logo.png";
 import profile from "../img/profile.jpg";
 
@@ -18,42 +18,44 @@ export default function FoodDetail({ foodItem, onBack, onGoToProfile, userData, 
     }
   }, [img]);
 
-  const handleClaim = async () => {
-    if (!userData) {
-      alert("กรุณาเข้าสู่ระบบก่อน Claim");
-      return;
-    }
+const handleClaim = async () => {
+  if (!userData) {
+    alert("กรุณาเข้าสู่ระบบก่อน Claim");
+    return;
+  }
 
-    try {
-      const db = getDatabase();
+  try {
+    const db = getDatabase();
 
-      // 1️⃣ เพิ่ม Claim ใน claims
-      const claimRef = push(ref(db, "claims"));
-      await set(claimRef, {
-        foodId: id,
-        userId: userData.uid,
-        claimedAt: new Date().toISOString(),
-        foodData: { title, img, description, productionDate, expiryDate, category, location },
-      });
+    // 1️⃣ เพิ่ม Claim ใน claims
+    const claimRef = push(ref(db, "claims"));
+    await set(claimRef, {
+      foodId: id,
+      userId: userData.uid,
+      claimedAt: new Date().toISOString(),
+      foodData: { title, img, description, productionDate, expiryDate, category, location },
+    });
 
-      // 2️⃣ อัปเดตสถานะโพสใน foodPosts เป็น "claimed"
-      const postRef = ref(db, `foodPosts/${id}`);
-      await set(postRef, { ...foodItem, status: "claimed" });
+    // 2️⃣ อัปเดตสถานะโพสเป็น "claimed" โดยไม่แทนที่ข้อมูลเดิม
+    const postRef = ref(db, `foodPosts/${id}`);
+    await update(postRef, {
+      status: "claimed",
+      claimedBy: userData.uid, // ✅ เก็บ id ของผู้ที่จองไว้
+    });
 
-      // ✅ แสดง popup
-      setShowClaimPopup(true);
+    // ✅ แสดง popup
+    setShowClaimPopup(true);
 
-      // หลัง 2 วินาที hide popup และกลับหน้า Home
-      setTimeout(() => {
-        setShowClaimPopup(false);
-        setCurrentPage("home");
-      }, 2000);
-    } catch (err) {
-      console.error("Error claiming food:", err);
-      alert("เกิดข้อผิดพลาดในการ Claim");
-    }
-  };
-
+    // หลัง 2 วินาที hide popup และกลับหน้า Home
+    setTimeout(() => {
+      setShowClaimPopup(false);
+      setCurrentPage("home");
+    }, 2000);
+  } catch (err) {
+    console.error("Error claiming food:", err);
+    alert("เกิดข้อผิดพลาดในการ Claim");
+  }
+};
   return (
     <div className="relative flex flex-col min-h-screen bg-white font-sans">
       {/* Header */}

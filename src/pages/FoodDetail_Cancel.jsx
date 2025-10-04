@@ -21,44 +21,44 @@ export default function FoodDetail_Cancel({ ClaimItem, onBack, onGoToProfile, us
   }, [img]);
 
     const handleCancelClaim = async () => {
-    if (!userData) {
+      if (!userData) {
         alert("กรุณาเข้าสู่ระบบก่อนยกเลิก");
         return;
-    }
+      }
 
-    if (!ClaimItem.claimId) {
+      if (!ClaimItem.claimId) {
         alert("ไม่พบ Claim ID ของรายการนี้");
         return;
-    }
+      }
 
-    try {
+      try {
         const db = getDatabase();
 
-        // ลบ Claim โดยตรงจาก claimId
+        // 1️⃣ ลบ Claim โดยตรงจาก claimId
         await remove(ref(db, `claims/${ClaimItem.claimId}`));
 
-        // อัปเดต foodPosts ให้เป็น available
+        // 2️⃣ อัปเดตสถานะโพสต์ให้กลับเป็น available โดยไม่แตะ userId เดิม
         const foodKey = ClaimItem.foodId || ClaimItem.id;
         if (foodKey) {
-        await update(ref(db, `foodPosts/${foodKey}`), {
-            ...ClaimItem,
+          await update(ref(db, `foodPosts/${foodKey}`), {
             status: "available",
-        });
+            claimedBy: null, // ✅ ล้างข้อมูลคนที่จอง
+          });
         }
 
-        // ✅ แทน alert ด้วยการแสดง popup
+        // ✅ แสดง popup สำเร็จ
         setShowClaimPopup(true);
 
         // ปิด popup และกลับหน้า home หลัง 2 วินาที
         setTimeout(() => {
-        setShowClaimPopup(false);
-        setCurrentPage("home");
+          setShowClaimPopup(false);
+          setCurrentPage("home");
         }, 2000);
 
-    } catch (err) {
+      } catch (err) {
         console.error("Error cancelling claim:", err);
         alert("เกิดข้อผิดพลาดในการยกเลิก Claim");
-    }
+      }
     };
 
 

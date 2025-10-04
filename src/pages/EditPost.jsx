@@ -9,7 +9,7 @@ import { getAuth } from "firebase/auth";
 import imageCompression from "browser-image-compression";
 import logo from "../img/Logo.png";
 import profile from "../img/profile.jpg";
-import { getDatabase, ref, update } from "firebase/database";
+import { getDatabase, ref, update , remove  } from "firebase/database";
 
 const auth = getAuth();
 
@@ -47,36 +47,57 @@ export default function EditPost({ post, onBack, onGoToProfile }) {
   const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
   const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    if (post) {
-      setFoodName(post.title || "");
-      setDescription(post.description || "");
-      setImage(post.img || "");
-      setProductionDate(post.productionDate || "");
-      setExpiryDate(post.expiryDate || "");
-      setCategory(post.category || "");
-      setPosition(post.location ? [post.location.lat, post.location.lng] : null);
-    }
-  }, [post]);
+    useEffect(() => {
+      if (post) {
+        setFoodName(post.title || "");
+        setDescription(post.description || "");
+        setImage(post.img || "");
+        setProductionDate(post.productionDate || "");
+        setExpiryDate(post.expiryDate || "");
+        setCategory(post.category || "");
+        setPosition(post.location ? [post.location.lat, post.location.lng] : null);
+      }
+    }, [post]);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const compressedFile = await imageCompression(file, { maxSizeMB: 0.5, maxWidthOrHeight: 1024 });
-      setImage(URL.createObjectURL(compressedFile));
-      setImageFile(compressedFile);
-    } catch (err) {
-      console.error("Error compressing image:", err);
-    }
-  };
+    const handleImageUpload = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const compressedFile = await imageCompression(file, { maxSizeMB: 0.5, maxWidthOrHeight: 1024 });
+        setImage(URL.createObjectURL(compressedFile));
+        setImageFile(compressedFile);
+      } catch (err) {
+        console.error("Error compressing image:", err);
+      }
+    };
 
-  const handleUseCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setPosition([pos.coords.latitude, pos.coords.longitude]),
-      (err) => console.error("Error getting location:", err)
-    );
-  };
+      const handleUseCurrentLocation = () => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => setPosition([pos.coords.latitude, pos.coords.longitude]),
+          (err) => console.error("Error getting location:", err)
+        );
+      };
+
+      const handleDelete = async () => {
+      if (!window.confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้?")) return;
+
+      try {
+        const user = auth.currentUser;
+        if (!user) return alert("กรุณาเข้าสู่ระบบ");
+
+        const db = getDatabase();
+        const postRef = ref(db, `foodPosts/${foodData.id}`);
+
+        await remove(postRef); // ⬅️ คำสั่งลบข้อมูลทั้งหมดในโพสต์นี้
+
+        alert("ลบโพสต์สำเร็จ!");
+        onBack(); // กลับไปหน้าเดิมหลังลบ
+      } catch (err) {
+        console.error("Error deleting post:", err);
+        alert("เกิดข้อผิดพลาดในการลบโพสต์");
+      }
+    };
+
 
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -192,6 +213,13 @@ export default function EditPost({ post, onBack, onGoToProfile }) {
         {/* Update Button */}
         <button onClick={handleSubmit} className="w-full bg-[#2e2eff] text-white py-3 rounded-lg font-bold hover:bg-[#1d1dcc] transition duration-300 transform hover:scale-105">UPDATE</button>
 
+        {/* Delete Button */}      
+        <button
+          onClick={handleDelete}
+          className="w-full bg-red-500 text-white py-3 rounded-lg font-bold hover:bg-red-600 transition duration-300 transform hover:scale-105 mt-2"
+        >
+          DELETE POST
+        </button>    
 
             {/* ✅ Popup หลังโพสต์ */}
                 {showSuccess && (
